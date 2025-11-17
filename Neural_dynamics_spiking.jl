@@ -105,15 +105,6 @@ end
 I_ext
 
 
-# ╔═╡ c62d701b-f530-443f-b9ce-74ca30804b46
-
-
-# ╔═╡ dd5423c2-55dd-49ff-b47a-481d77129a11
-
-
-# ╔═╡ 4adb11ad-506b-44eb-8230-843688619b48
-
-
 # ╔═╡ 37bd4d2e-35ec-41ec-a764-0448bd8f69af
     # Rate constants for gating variables (Hodgkin–Huxley, Squid Giant Axon)
     # -------------------------------------------------------------
@@ -186,39 +177,29 @@ begin
 			sol = solve(prob)
 end
 
-# ╔═╡ 48c91ccf-0cc4-4696-ac43-ee8b9391973d
-begin
-	# Plot the phase portrait (Voltage vs. n)
-	plot(sol, vars=(1, 2), xlabel="Voltage (mV)", ylabel="n-variable (Activation)", label="Trajectory")
-	# Create a range of voltages
-	V_range = -80:0.1:20
-	
-	# Calculate the n-nullcline over that range
-	n_nullcline = n_inf.(V_range)
-	
-	# Add the nullcline TO THE PHASE PORTRAIT
-	plot!(V_range, n_nullcline, label="n-nullcline (dn/dt=0)", color=:green, linewidth=2)
-	# 2. Calculate the V-nullcline
-	# Note: This is written for clarity, not performance.
-	v_numerator(V, I_ext) = -I_ext - g_Na*m_inf(V)^3*h_inf(V)*(E_Na-V) - g_L*(E_L-V)
-	v_denominator(V) = g_K*(E_K-V)
-	v_nullcline_val(V, I_ext) = (v_numerator(V, I_ext) / v_denominator(V))^(1/4)
-	
-	# Be careful with the domain for the 4th root! Only calculate where the argument is non-negative.
-	V_null_domain = [v for v in V_range if v_numerator(v, I_ext) / v_denominator(v) >= 0]
-	v_nullcline = v_nullcline_val.(V_null_domain, I_ext)
-	
-	# 3. Plot it
-	plot!(V_null_domain, v_nullcline, label="V-nullcline (dV/dt=0)", color=:red, linewidth=2)
-end
-
-# ╔═╡ 7b1e1ece-d195-4bbc-bcac-4c4823856e8d
-# Visualize the potassium gate activation variable
-plot(sol, vars=(0, 2), label="n-variable (Potassium Activation)", xlabel="Time (ms)", ylabel="Activation")
-
 # ╔═╡ b5f5e35b-167a-4a4e-a069-dc1159a9affd
-# Plot the results
-plot(sol, vars=(0, 1), label="Membrane Voltage (mV)", xlabel="Time (ms)", ylabel="Voltage (mV)")
+begin
+    # --- Part 1: PREPARE THE NULLCLINE DATA ---
+    V_range = -80:0.1:40 # Expanded range for better visualization
+    n_nullcline = n_inf.(V_range)
+
+    v_numerator(V, I) = -I - g_Na*m_inf(V)^3*h_inf(V)*(E_Na-V) - g_L*(E_L-V)
+    v_denominator(V) = g_K*(E_K-V)
+    v_nullcline_val(V, I) = (v_numerator(V, I) / v_denominator(V))^(1/4)
+    V_null_domain = [v for v in V_range if v_numerator(v, I_ext) / v_denominator(v) >= 0]
+    v_nullcline = v_nullcline_val.(V_null_domain, I_ext)
+
+    # --- Part 2: CREATE THE INDIVIDUAL PLOTS ---
+    p1 = plot(sol, vars=(1, 2), xlabel="Voltage (mV)", ylabel="n-variable", label="Trajectory", title="Phase Portrait")
+    plot!(p1, V_range, n_nullcline, label="n-nullcline", color=:green, linewidth=2)
+    plot!(p1, V_null_domain, v_nullcline, label="V-nullcline", color=:red, linewidth=2)
+
+    p2 = plot(sol, vars=(0, 1), xlabel="Time (ms)", ylabel="Voltage (mV)", label=false, title="Membrane Voltage")
+    p3 = plot(sol, vars=(0, 2), xlabel="Time (ms)", ylabel="n-variable", label=false, title="Potassium Activation")
+
+    # --- Part 3: ASSEMBLE THE FINAL DASHBOARD (Corrected Syntax) ---
+    plot(p1, p2, p3, layout = @layout([a{0.5w} [b; c]]), size = (1000, 500))
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2931,12 +2912,7 @@ version = "1.9.2+0"
 # ╠═1faaca3a-c32b-4061-b62c-7697b7dc2a08
 # ╟─c3348256-549d-45d5-9857-f57b832bae6f
 # ╟─6b02a52e-c271-46e2-9593-eb297fd4f7b2
-# ╠═48c91ccf-0cc4-4696-ac43-ee8b9391973d
-# ╠═7b1e1ece-d195-4bbc-bcac-4c4823856e8d
-# ╠═b5f5e35b-167a-4a4e-a069-dc1159a9affd
-# ╠═c62d701b-f530-443f-b9ce-74ca30804b46
-# ╠═dd5423c2-55dd-49ff-b47a-481d77129a11
-# ╠═4adb11ad-506b-44eb-8230-843688619b48
+# ╟─b5f5e35b-167a-4a4e-a069-dc1159a9affd
 # ╠═37bd4d2e-35ec-41ec-a764-0448bd8f69af
 # ╠═6f7e17a6-8343-4a5e-b240-3f5f7d901bd7
 # ╠═406056b3-81a5-450c-8114-c38809397468
