@@ -1,8 +1,0 @@
-what is my future plan looks like
-
-i have solved the 2d hh model
-next --> saved the synthetic data for this 2d hh model , in three file with three level of noise ( 0% 5% 20%)
-next ---> already collected two  data from Allen brain institute , I will clean this data (.nwd  with 5million rows ) with few data points
-next  --> Plot these 3 + 3 + 3 (9 different data with different level of noise)
-next create a UDE and Neural Ode model for hh dynmaics
----- what your thought on this
