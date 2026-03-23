@@ -1,1 +1,0 @@
-@printf("Iter %d | Loss %.6e | Best %.6e\n", iter, l, min_loss)
